@@ -1,17 +1,9 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Redirect } from 'expo-router';
+import { useSession } from '../features/auth/session';
 
+/** Entry: send people to login, or to their role's home tab. */
 export default function Index() {
-  return (
-    <View style={styles.container}>
-      <Text>Edit src/app/index.tsx to edit this screen.</Text>
-    </View>
-  );
+  const session = useSession((s) => s.session);
+  if (!session) return <Redirect href="/login" />;
+  return <Redirect href={session.role === 'trainer' ? '/today' : '/pass'} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
