@@ -7,4 +7,6 @@ export type Session = {
   role: Role;
   user: { id: string; name: string; phone: string };
   gym: { id: string; name: string };
+  /** False on a member's first login, until they confirm their profile. */
+  onboarded: boolean;
 };

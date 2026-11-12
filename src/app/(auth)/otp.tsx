@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText, Button, Card, Icon, Input, Screen } from '../../components/ui';
-import { MOCK_OTP, verifyOtp } from '../../features/auth/mockAuth';
+import { MOCK_NO_ACCOUNT_PHONE, MOCK_OTP, NoAccountError, verifyOtp } from '../../features/auth/mockAuth';
 import { useSession } from '../../features/auth/session';
 import type { Role } from '../../features/auth/types';
 import { colors, fonts, radius, sizes } from '../../theme/tokens';
@@ -25,6 +25,10 @@ export default function Otp() {
       setSession(session);
       router.replace('/');
     } catch (e) {
+      if (e instanceof NoAccountError) {
+        router.replace({ pathname: '/no-account', params: { phone } });
+        return;
+      }
       setError(e instanceof Error ? e.message : 'Something went wrong. Try again.');
     } finally {
       setBusy(false);
@@ -63,7 +67,7 @@ export default function Otp() {
             Dev only · mock login
           </AppText>
           <AppText variant="caption" color={colors.textSoft}>
-            Use code {MOCK_OTP}. Pick which side of the app to open:
+            Use code {MOCK_OTP} (phone {MOCK_NO_ACCOUNT_PHONE} shows the no-account screen). Pick which side of the app to open:
           </AppText>
           <View style={styles.segment}>
             {(['member', 'trainer'] as const).map((r) => {

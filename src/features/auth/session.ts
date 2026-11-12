@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import type { Session } from './types';
@@ -15,6 +15,9 @@ type SessionState = {
   session: Session | null;
   setSession: (session: Session) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
+  markOnboarded: () => void;
+  /** Switch the active gym (and the role held there). */
+  switchGym: (gym: Session['gym'], role: Session['role']) => void;
   signOut: () => void;
 };
 
@@ -27,6 +30,14 @@ export const useSession = create<SessionState>()(
         const current = get().session;
         if (current) set({ session: { ...current, accessToken, refreshToken } });
       },
+      markOnboarded: () => {
+        const current = get().session;
+        if (current) set({ session: { ...current, onboarded: true } });
+      },
+      switchGym: (gym, role) => {
+        const current = get().session;
+        if (current) set({ session: { ...current, gym, role } });
+      },
       signOut: () => set({ session: null }),
     }),
     { name: 'gymflow.session', storage: createJSONStorage(() => secureStorage) },
@@ -35,11 +46,8 @@ export const useSession = create<SessionState>()(
 
 /** True once the saved session has been read from secure storage. */
 export function useSessionHydrated() {
-  const [hydrated, setHydrated] = useState(() => useSession.persist.hasHydrated());
-  useEffect(() => {
-    const unsubscribe = useSession.persist.onFinishHydration(() => setHydrated(true));
-    setHydrated(useSession.persist.hasHydrated());
-    return unsubscribe;
-  }, []);
-  return hydrated;
+  return useSyncExternalStore(
+    (onChange) => useSession.persist.onFinishHydration(onChange),
+    () => useSession.persist.hasHydrated(),
+  );
 }

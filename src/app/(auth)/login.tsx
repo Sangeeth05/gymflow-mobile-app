@@ -34,7 +34,7 @@ export default function Login() {
       <View style={styles.intro}>
         <AppText variant="display">Your gym pass,{'\n'}one code away</AppText>
         <AppText color={colors.muted}>
-          Enter the phone number you gave your gym. We'll send you a 6-digit code.
+          Enter the phone number you gave your gym. We’ll send you a 6-digit code.
         </AppText>
       </View>
 
@@ -57,6 +57,7 @@ export default function Login() {
       <AppText variant="caption" color={colors.muted} align="center">
         Gym owner? Sign in on the web portal.
       </AppText>
+      {__DEV__ ? <Button label="Screen gallery (dev)" variant="text" onPress={() => router.push('/gallery')} /> : null}
     </Screen>
   );
 }

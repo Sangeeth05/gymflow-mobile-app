@@ -1,19 +1,20 @@
-import { Redirect, Tabs } from 'expo-router';
-import { tabScreenOptions } from '../../components/navigation/tabScreenOptions';
-import { Icon } from '../../components/ui';
+import { Redirect, Stack } from 'expo-router';
 import { useSession } from '../../features/auth/session';
+import { colors } from '../../theme/tokens';
 
+/** Member app: tabs plus the screens pushed or presented over them. */
 export default function MemberLayout() {
   const session = useSession((s) => s.session);
   if (!session) return <Redirect href="/login" />;
   if (session.role !== 'member') return <Redirect href="/" />;
+  if (!session.onboarded) return <Redirect href="/confirm-profile" />;
 
   return (
-    <Tabs screenOptions={tabScreenOptions}>
-      <Tabs.Screen name="pass" options={{ title: 'Pass', tabBarIcon: ({ color }) => <Icon name="pass" color={color} /> }} />
-      <Tabs.Screen name="activity" options={{ title: 'Activity', tabBarIcon: ({ color }) => <Icon name="activity" color={color} /> }} />
-      <Tabs.Screen name="classes" options={{ title: 'Classes', tabBarIcon: ({ color }) => <Icon name="calendar" color={color} /> }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => <Icon name="user" color={color} /> }} />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="check-in" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="checked-in" options={{ presentation: 'fullScreenModal', animation: 'fade', gestureEnabled: false }} />
+      <Stack.Screen name="family" options={{ presentation: 'modal' }} />
+    </Stack>
   );
 }
